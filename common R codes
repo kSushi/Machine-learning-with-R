@@ -1,0 +1,142 @@
+a=1 # Ctrl + Enter to runn a command
+b=3
+a
+ls() ## Objects available in R sesssion
+?ls
+lb()
+
+
+## Concept of Package in R
+# Step 1: Downloading: Install the package from Package window and click on Install button
+# Step 2: Configuration:  Run this package in R by library syntax
+library(MASS)
+
+
+library(help=MASS)
+View(Boston)
+  
+  
+
+############ concept of working directory in R ############
+getwd() 
+setwd("C:\\Users\\pc\\Documents\\R\\Machine learning-Algorithms")
+##setwd(choose.dir())
+getwd()
+
+HSB = read.csv("hsb.csv")
+View(HSB)
+
+##### Objects created in R - Vectors #####
+a = 1
+# OR
+a <- 5
+a
+a=5
+a
+
+# numeric Vector: Integer
+x = c(1,5,3,6,5,8,8)
+x
+class(x)
+?c
+
+# real numbers
+x = c(1.3,5.2,3.0,6.9,5.5,8.6,8.1)
+x
+class(x)
+
+# Vector with char values
+Char_Vector = c("Jim","Alex","Timothy","Alexa","Theresa") 
+Char_Vector
+class(Char_Vector)
+print(Char_Vector)
+
+### Indexing concept
+x = c(1.3,5.2,3.0,6.9,5.5,8.6,8.1)
+x
+x[4]
+# All values/elements greater than 5
+x[x>5]
+
+# All values/elements greater than 2 and less than 8
+x[x>2 & x<8]
+
+# All values/elements greater than 2 or less than 8
+x[x>2 | x<8]
+
+# First 2 elements
+x[1:2]
+x[2:6]
+x[c(2,5)]
+
+## Importing HSB data
+Hsb = read.csv("hsb.csv")
+View(Hsb)
+
+HSB = read.xlsx("hsb.xlsx",sheetName="Sheet1")
+
+library(xlsx) # Install package first
+# Dependencies and system gives error to download rJava
+install.packages("rJava")
+library(rJava) # Install package first
+install.packages("xlsx")
+library(xlsx)
+
+HSB = read.xlsx("hsb.xlsx",sheetName="hsb")
+View(HSB)
+class(HSB)
+
+## see list of all packages in your R session
+library()
+
+?read.csv
+
+##Module 3 Business Problem
+##Reading movie dataset from csv
+Movies=read.csv("M2_Movie_Metadata.csv")
+View((Movies))
+class(Movies)
+
+#Finding profit for each movie/row
+install.packages("dplyr")
+library(dplyr) #Install package first
+?dplyr
+#Step1
+MoviesWithProfit=transform(Movies,profit=(gross-budget))
+View(MoviesWithProfit)
+class (MoviesWithProfit)
+?transform
+
+#Step2
+#All the values which has NA values will be removed.
+MoviesFinal=na.omit(MoviesWithProfit)
+view(MoviesFinal)
+
+#Step3:Order a profit variable in descending order
+Temp=MoviesFinal[1:2,1:3] # First reference Rows and Second Columns in Temp object.
+View(Temp)
+
+MoviesFinalOrdered=MoviesFinal[order(MoviesFinal$profit),]
+View(MoviesFinalOrdered)
+
+Top10Movies_highest_profit=MoviesFinalOrdered[1:10,]
+View(Top10Movies_highest_profit)
+
+#Average
+mean(Top10Movies_highest_profit$profit)
+max(Top10Movies_highest_profit$profit)
+
+#Character function
+View(Movies)
+str(Movies) #attribute of each variable.
+
+NewMovieName=sub(pattern="A",replacement = "",Movies$movie_title)
+View(NewMovieName)
+
+
+
+
+
+
+
+
