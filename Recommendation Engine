@@ -1,0 +1,69 @@
+
+setwd(choose.dir())
+
+              ### Association Rules with Apriori Algorithm
+
+    ## step 1: Import transactional data in R
+library(arules) ## Please install this package first.
+DataGroceries = read.transactions("M7_Groceries.csv",sep=",")
+View(DataGroceries) # cant view
+class(DataGroceries)
+inspect(DataGroceries)
+inspect(DataGroceries[1:3])
+
+    ## step 2: Examine/ Find out the Association rules
+AG_Groceries = apriori(DataGroceries) # no rule defined as has default cut off for Confidence as .8
+AG_Groceries1 = apriori(DataGroceries,parameter = list(support=.007,confidence=.5))
+class(AG_Groceries1)
+summary(AG_Groceries1)
+inspect(AG_Groceries1)
+
+## Sorting by confidence statistic
+inspect(sort(AG_Groceries1,by = "confidence"))
+
+write.csv(AG_Groceries1,"Temp.csv")
+
+        ### User based collaborative filtering- Recommendation engine
+library(recommenderlab) # please install this package first
+data(Jester5k) # load this data
+Jester5k
+class(Jester5k)
+?Jester5k
+
+
+## Step 1- divide data into training and test
+library(caTools)
+Sample1 = sample(2,nrow(Jester5k),prob=c(.8,.2),replace=T)
+Sample1
+
+Jester_train = Jester5k[Sample1 == 1,]
+Jester_test = Jester5k[Sample1 == 2,]
+Jester_train
+Jester_test
+
+Recc_Model = Recommender(Jester_train,method="UBCF")
+Recc_Predict = predict(Recc_Model,Jester_test,n=10)
+Recc_Predict
+head(as(Recc_Predict,"matrix"))
+?head
+
+# Predicting all values
+Recc_Predict1 = predict(Recc_Model,Jester_test)
+Recc_Predict1
+head(as(Recc_Predict1,"matrix"))
+
+## Step 2: Actual vs predicted values comparision
+c # Actual values
+Recc_Predict # predicted.
+# Export actual values in csv file.
+    # Stage 1
+        ActualsToBeExported = head(as(Jester_test,"matrix"))          
+    # Stage 2      
+          write.csv(ActualsToBeExported,"Test.csv")
+
+# Export predicted values in csv file.
+          # Stage 1
+          PredictedToBeExported = head(as(Recc_Predict,"matrix"))          
+          # Stage 2      
+          write.csv(PredictedToBeExported,"TestPrediction.csv")
+          
