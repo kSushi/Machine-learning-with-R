@@ -1,0 +1,61 @@
+############### Linear regression ##############################
+View(mtcars)
+?mtcars
+
+## Nomenclature
+ # LMcars = lm(Y~x1+x2+x3......,dataframename)
+
+LMcars = lm(mpg~cyl+disp+hp+drat......,dataframename)
+
+# or
+
+LMcars = lm(mpg ~ .,mtcars)
+summary(LMcars)
+
+
+# drop insignificant variables from mode
+LMcars = lm(mpg ~ wt,mtcars)
+summary(LMcars)
+
+
+############ Proprer Linear regression ############
+library(MASS) # install MASS package first and then run this syntax
+View(Boston)
+?Boston
+
+ # Step 1: Divide data in training and test dataset
+    # Part A: define vector with True and false
+install.packages("caTools") # or install from wizard
+library(caTools)
+SplitData1 = sample.split(Boston$medv,SplitRatio=.7)
+class(SplitData1)
+SplitData1
+    # Part B: Use this vector in training and test data creation
+BostonTrainingData = Boston[SplitData1,]
+View(BostonTrainingData)
+
+BostonTestData = Boston[!SplitData1,]
+View(BostonTestData)
+
+  # step 2: Build up linear regression model on Training data
+LM_Boston_Model = lm(medv~.,BostonTrainingData)
+summary(LM_Boston_Model)
+
+# drop insignificant variables
+LM_Boston_Model = lm(medv~zn+nox+rm+dis+rad+tax+ptratio+black+lstat,BostonTrainingData)
+summary(LM_Boston_Model)
+
+  # Step 3: Plug in equation of model into test dataset
+
+Prediction_of_medv = predict(LM_Boston_Model,BostonTestData)
+Prediction_of_medv
+View(as.data.frame(Prediction_of_medv))
+
+PredictionTestDataFinal = cbind(BostonTestData,Prediction_of_medv)
+View(PredictionTestDataFinal)
+
+?plot
+plot(PredictionTestDataFinal$medv,type="l",col="green")
+lines(PredictionTestDataFinal$Prediction_of_medv,type="l",col="blue")
+
+
