@@ -1,0 +1,80 @@
+# please install packages first
+install.packages("zoo")
+install.packages("xts")
+library(zoo)
+library(xts)
+
+
+
+View(AirPassengers)
+
+AirPassengers # Tabular look
+plot(AirPassengers)
+abline(reg=lm(AirPassengers~time(AirPassengers))) #draws a mean line in the plot.
+class(AirPassengers) # class is ts and NOT data.frame
+str(AirPassengers)
+print(AirPassengers)
+?ts
+
+
+################################# ARIMA ############################################
+install.packages("forecast")
+
+library(forecast) # please install package forecast first
+
+
+## ARIMA model can also be made on data frame and object need not necessary be ts
+
+
+AirPassDataFrameModel=auto.arima(AirPassengers)
+
+?arima
+
+
+plot(forecast(AirPassDataFrameModel))
+forecast(AirPassDataFrameModel) # Gives 2 years forecast in console window
+
+forecast(AirPassDataFrameModel,h=6) # 6 months of prediction
+forecast(AirPassDataFrameModel,h=120) # 12 years of prediction
+
+## ARIMA Model
+library(forecast)
+PredictedAirPassangers = auto.arima(AirPassengers)
+PredictedAirPassangers
+
+# Predicting values to see the exact forecast in table format
+PredictionDataset= predict(AirPassDataFrameModel,AirPassengers,type="ts")
+View(PredictionDataset)
+
+
+
+# Plotting forecasts for 6 m
+plot(forecast(PredictedAirPassangers,h=6))
+
+
+
+
+
+###################### Exponential smoothning Important Slides######################
+# 1. Simple exponential smoothning
+SimpleExpSmoothning <- ets(AirPassengers)  
+plot(forecast(SimpleExpSmoothning)) # The predictions for next 2 years are stable and are same as 1960 (last year)
+
+ets??
+gamma??
+
+# 2. Holt's exponential smoothning
+HoltExpSmoothning <- HoltWinters(AirPassengers,gamma=NULL)
+plot(forecast(PredictedAirPassangers))
+
+# 3. Holt's Winter exponential smoothning
+HoltWintersExpSmoothning <- HoltWinters(AirPassengers)
+plot(forecast(HoltWintersExpSmoothning))
+
+
+
+
+
+
+
+
