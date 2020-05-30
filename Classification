@@ -1,0 +1,208 @@
+#####Logistic Regression####
+setwd(choose.dir("C:\\Users\\pc\\Documents\\R\\Machine learning-Algorithms"))
+setwd("C:\\Users\\pc\\Documents\\R\\Machine learning-Algorithms")
+getwd()
+
+Diabetic = read.csv("M4_Diabetes.csv")
+View(Diabetic)
+str(Diabetic)
+?str
+# Step 1: Exploratory analysis
+cdplot(Is_Diabetic~Age,Diabetic) ##Is_Diabetic on Y axis and Age on X axis.
+cdplot(Is_Diabetic~Diabetes_pedigree_fn,Diabetic) ##Is_Diabetic on Y axis and Diabetes_pedigree_fn on X axis. 
+?cdplot
+
+# Step 2: Divide data into training and test
+library(MASS)
+library(caTools)
+Sample_Diab = sample.split(Diabetic$Is_Diabetic,SplitRatio = .7) ##70% data split.
+Sample_Diab
+
+?sample.split
+
+Diabeties_Train = Diabetic[Sample_Diab,] ##True values in 70% in the dataset.
+View(Diabeties_Train)
+
+Diabeties_Test = Diabetic[!Sample_Diab,] ##False values (!!) as 30% in the dataset.
+View(Diabeties_Test)
+
+
+# Step 3: Run model on Training data frame
+
+Diab_Log = glm(Is_Diabetic~.,Diabeties_Train,family="binomial") ##Generalized Linear model.
+summary(Diab_Log)
+?glm
+
+# Step 4: Drop insignificant variables
+Diab_Log = glm(Is_Diabetic~No.of_times_pregnant+glucose_conc+blood_pressure+BMI+Diabetes_pedigree_fn
+                 ,Diabeties_Train,family="binomial")
+summary(Diab_Log)
+
+
+#step 5: Predicting test dataset
+Diabeties_test_Pred = predict(Diab_Log,Diabeties_Test,type="response")
+View(as.data.frame(Diabeties_test_Pred))
+
+Diabeties_test_Pred1 = cbind(Diabeties_Test,Diabeties_test_Pred)
+View(Diabeties_test_Pred1)
+
+# Step 6: Accuracy. 
+    # Step a: with 50% cut off for probability. Error is 23%. Accuracy = 77%
+Diabeties_test_Pred2 = transform(Diabeties_test_Pred1, Diab_Pred = ifelse(Diabeties_test_Pred>.5,
+                                                                          "YES","NO"))
+View(Diabeties_test_Pred2)
+table(Diabeties_test_Pred2$Is_Diabetic,Diabeties_test_Pred2$Diab_Pred)
+
+    # Step b: with 40% cut off for probability. Error is 25%. Accuracy = 75%
+Diabeties_test_Pred2 = transform(Diabeties_test_Pred1, Diab_Pred = ifelse(Diabeties_test_Pred>.4,
+                                                                          "YES","NO"))
+View(Diabeties_test_Pred2)
+table(Diabeties_test_Pred2$Is_Diabetic,Diabeties_test_Pred2$Diab_Pred)
+
+    # Step c: with 60% cut off for probability. Error is 25%. Accuracy = 77%
+Diabeties_test_Pred2 = transform(Diabeties_test_Pred1, Diab_Pred = ifelse(Diabeties_test_Pred>.6,
+                                                                          "YES","NO"))
+View(Diabeties_test_Pred2)
+table(Diabeties_test_Pred2$Is_Diabetic,Diabeties_test_Pred2$Diab_Pred)
+
+
+    # Step d: with 70% cut off for probability. Error is 25%. Accuracy = 75%
+Diabeties_test_Pred2 = transform(Diabeties_test_Pred1, Diab_Pred = ifelse(Diabeties_test_Pred>.7,
+                                                                          "YES","NO"))
+View(Diabeties_test_Pred2)
+table(Diabeties_test_Pred2$Is_Diabetic,Diabeties_test_Pred2$Diab_Pred)
+
+    # Step e: with 55% cut off for probability. Error is 25%. Accuracy = 77%
+Diabeties_test_Pred2 = transform(Diabeties_test_Pred1, Diab_Pred = ifelse(Diabeties_test_Pred>.55,
+                                                                          "YES","NO"))
+View(Diabeties_test_Pred2)
+table(Diabeties_test_Pred2$Is_Diabetic,Diabeties_test_Pred2$Diab_Pred)
+
+############ ROC Curve #########
+library(ROCR) ## install package first
+ROCpred = prediction(Diabeties_test_Pred1$Diabeties_test_Pred,Diabeties_test_Pred1$Is_Diabetic)
+ROCPerformance = performance(ROCpred,"tpr","fpr")
+plot(ROCPerformance)
+plot(ROCPerformance,col="blue",print.cutoffs.at=seq(.1,by=.1),text.adj=c(-.1,1.7))
+
+
+#######Decision Tree #######
+# Steps 1 : Divide data into training and test data.
+setwd(choose.dir("C:\\Users\\pc\\Documents\\R\\Machine learning-Algorithms\\M4_Diabetes.csv"))
+Diabetic = read.csv("M4_Diabetes.csv")
+View(Diabetic)
+
+library(caTools)
+Sample_Diab = sample.split(Diabetic$Is_Diabetic,SplitRatio = .7)
+Sample_Diab
+
+##Divide the dataset into Training and Test
+Diabeties_Train = Diabetic[Sample_Diab,] 
+View(Diabeties_Train)
+      
+Diabeties_Test = Diabetic[!Sample_Diab,]
+View(Diabeties_Test)
+      
+      # Step 2: Run the decision tree
+library(rpart)# install package first
+DT_Diabetic = rpart(Is_Diabetic~.,Diabeties_Train)
+
+plot(DT_Diabetic,margin=.1)
+text(DT_Diabetic,use.n=T,pretty=T,cex=.6)
+
+
+Diabeties_Train
+
+Diabeties_Test
+?predict
+
+Prediction_DT = predict(DT_Diabetic,Diabeties_Test,type="class")
+View(as.data.frame(Prediction_DT))
+View(Diabeties_Test)
+
+Diabeties_Test_Final = cbind(Diabeties_Test,Prediction_DT)
+View(Diabeties_Test_Final)
+
+library(caret)
+library(lattice)
+library(ggplot2)
+table(Diabeties_Test_Final$Is_Diabetic,Diabeties_Test_Final$Prediction_DT)
+confusionMatrix(table(Diabeties_Test_Final$Is_Diabetic, Diabeties_Test_Final$Prediction_DT)
+## Accuracy rate is 75% with Decision Tree. Accuracy rate was 77% with logistic regression
+    ## you might get better accuracy rate with DT.
+
+
+######### Random forest######
+library(randomForest) # install the package first.
+
+RF_Diabetic = randomForest(Is_Diabetic~.,Diabeties_Train)
+plot(RF_Diabetic)
+
+
+Prediction_RF = predict(RF_Diabetic,Diabeties_Test,type="class")
+View(as.data.frame(Prediction_RF))
+View(Diabeties_Test)
+
+
+Diabeties_Test_RF = cbind(Diabeties_Test,Prediction_RF)
+View(Diabeties_Test_RF)
+table(Diabeties_Test_RF$Is_Diabetic,Diabeties_Test_RF$Prediction_RF)
+library(caret)
+confusionMatrix(Diabeties_Test_RF$Is_Diabetic,Diabeties_Test_RF$Prediction_RF)
+## Accuracy is 77%
+
+
+
+######## Naives Bayes Theorem ########
+library(e1071)
+Diabeties_Naives = naiveBayes(Is_Diabetic~.,data=Diabeties_Train)
+
+Diabeties_Pred_Naives = predict(Diabeties_Naives,Diabeties_Test,type="class")
+View(as.data.frame(Diabeties_Pred_Naives))
+
+Diabeties_Test_Naives = cbind(Diabeties_Test,Diabeties_Pred_Naives)
+View(Diabeties_Test_Naives)
+table(Diabeties_Test_Naives$Is_Diabetic,Diabeties_Test_Naives$Diabeties_Pred_Naives)
+#### Accuracy rate is 76.5%
+
+library(sas7bdat) # please install sas7bdat first
+Garlic = read.sas7bdat("garlicharvesting.sas7bdat")
+View(Garlic)
+
+?sas7bdat
+
+##### SVM #####
+
+library(e1071)
+library(caTools) ##For splitting the data
+View(iris)
+plot(iris$Petal.Length,iris$Petal.Width,col=iris$Species)
+
+Sample1 = sample.split(iris$Species,SplitRatio = .7)
+Train_iris = iris[Sample1,]
+Test_iris = iris[!Sample1,]
+View(Train_iris)
+View(Test_iris)
+
+svm_iris = svm(Species~.,Train_iris,kernel="linear",cost=.1,scale=F)
+
+svm_test_prediction = predict(svm_iris,Test_iris,type="class")
+View(as.data.frame(svm_test_prediction))
+
+Test_iris1 = cbind(Test_iris,svm_test_prediction)
+View(Test_iris1)
+
+plot(Test_iris$Species)
+table(Test_iris1$Species,Test_iris1$svm_test_prediction) ##Confusion Matrix.
+
+
+
+
+
+
+
+
+
+
+
+
