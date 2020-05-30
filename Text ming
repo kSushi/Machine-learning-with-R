@@ -1,0 +1,129 @@
+setwd(choose.dir())
+getwd()
+
+####################### Bag of words approach ####################### 
+
+## Step 1: Import text file
+BookHP6 = readLines("HP6 - The Half Blood Prince.txt")
+View(BookHP6) # cant view as not a structured data
+class(BookHP6)
+BookHP6
+
+## Step 2: Make a corpus of text file in R
+library(dplyr)
+library(corpus) # install the package first
+library(tm) # install the package first
+library(SnowballC)
+  CorpusHP6 <- Corpus(VectorSource(BookHP6)) %>%
+            tm_map(removePunctuation) %>%
+            tm_map(removeNumbers) %>%
+            tm_map(content_transformer(tolower)) %>%
+            tm_map(removeWords,stopwords("english")) %>%
+            tm_map(stripWhitespace) %>%
+            tm_map(stemDocument)
+?VectorSource
+??tm_map
+??DocumentTermMatrix
+
+# Step 3: Document term matrix 
+dtmHP6 = DocumentTermMatrix(CorpusHP6)
+dtmHP6
+
+
+
+dtmHP6RemovedSparse = removeSparseTerms(dtmHP6,.99)
+dtmHP6RemovedSparse
+
+
+
+#Step 4  - calculate word frequencies.
+word_freqHP = sort(colSums(as.matrix(dtmHP6RemovedSparse)),decreasing=T)
+View(as.data.frame(word_freqHP)) ##Words which are repeating
+write.csv(word_freqHP,"Temp.csv")
+
+class(word_freqHP)
+
+  ######################## Sentiment Analysis ####################################
+
+consumer_key<- "your_consumer_key"
+consumer_key<- "3wilnhzGgbeZmbWOTjgF35bdm"
+
+consumer_secret<- "your_consumer_secret"
+consumer_secret<- "TBWDWoO8UdCtMtAfTDYq22hSZ3XkY4u4SmJw8i2A0DtOENi3Ij"
+
+access_token<- "your_access_token"
+access_token<- "218010376-hubKQ4ogvWgPR10JOxANjJc7DXTy9GgclTUVXQiV"
+
+access_secret<- "your_access_secret"
+access_secret<- "noc4pLgrbgHDEn54aKC0L4axVkNeLptSeO14kcHq8KBsi"
+
+
+
+
+#setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+setup_twitter_oauth("3wilnhzGgbeZmbWOTjgF35bdm", "TBWDWoO8UdCtMtAfTDYq22hSZ3XkY4u4SmJw8i2A0DtOENi3Ij", 	"218010376-hubKQ4ogvWgPR10JOxANjJc7DXTy9GgclTUVXQiV", "noc4pLgrbgHDEn54aKC0L4axVkNeLptSeO14kcHq8KBsi")
+
+
+
+library(twitteR) # Please install the package
+## Step 1: COnfigure twitter account with R studio (follow steps loaded on google drive)
+
+# Step 2: Import the tweets messages into R
+
+barcelona_tweets = searchTwitter("FC Barcelona",n=1000,lang="en") ##1000 tweets frpm Barcelona
+barcelona_tweets
+barcelona_tweets[1] # 1st tweet 
+barcelona_tweets[1:10] # 1 to 10 tweets
+
+# Step 3: Extract text from r tweet objects to text object
+barcelona.text = lapply(barcelona_tweets,function(x) x$getText())
+barcelona.text
+
+?lapply
+
+# step 4: import +ve and -ve list of words
+pos = scan('positive-words.txt',what='character',comment.char = ";")
+pos
+
+neg = scan('negative-words.txt',what='character',comment.char = ";")
+neg
+
+
+# step 5: carry on from step 3 and futhur clean bareclon tweets
+barcelona.text[2]
+sentence = gsub('[[:punct:]]',"",barcelona.text)
+sentence[2]
+sentence1  = gsub('[[:cntrl:]]',"",sentence) # remove \n
+sentence2  = gsub('\\d+',"",sentence1) # remove d+
+sentence2
+sentence2[2]
+
+## Step 6: Splitting step 5 into words
+
+library(stringr) # please install this package first.
+word.list = str_split(sentence2,'\\s+')
+word.list
+word.list[2]
+word.list[[2]][1] # first element inside second element
+word.list[[2]][3] # 3rd element inside second element
+words = unlist(word.list)
+class(words)
+
+## Step 7: 
+pos.matches = match(words,pos)
+pos.matches
+pos[976]
+words[984]
+Pos_matchesFinal = na.omit(pos.matches)
+Pos_matchesFinal
+length(Pos_matchesFinal)
+
+
+neg.matches = match(words,neg)
+neg.matches
+
+neg_matchesFinal = na.omit(neg.matches)
+neg_matchesFinal
+length(neg_matchesFinal)
+
+
