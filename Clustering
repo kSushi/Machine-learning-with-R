@@ -1,0 +1,100 @@
+
+### Participants questions
+setwd(choose.dir())
+getwd()
+
+Default = read.csv("Default_On_Payment.csv")
+View(Default)
+Default = transform(Default,New_Default_On_Payment = ifelse(Default_On_Payment==1,"Yes","No"))
+View(Default)
+str(Default)
+
+Default$Default_On_Payment=as.factor(Default$Default_On_Payment)
+str(Default)
+
+## change data type commands
+as.character()
+as.numeric()
+as.factor()
+
+
+######Clustering#####
+
+      # A. Kmeans clusters  
+Cust_Segment = read.csv("Customer segment dataset.csv")
+View(Cust_Segment)
+                      ## preparing data
+## remove na values
+Complete_case_Cust_Segment = complete.cases(Cust_Segment)
+View(as.data.frame(Complete_case_Cust_Segment))
+?complete.cases ## Having no missing values.
+?as.data.frame
+
+
+Cust_Segment1 = Cust_Segment[Complete_case_Cust_Segment,]
+View(Cust_Segment1)
+
+## another way of removing na records
+Cust_Segment2 = na.omit(Cust_Segment)
+View(Cust_Segment2)
+
+                    ## running kmeans
+# Rsquare is 52%
+kmeansoutput1 = kmeans(Cust_Segment2[,-1],centers = 3) ##-1 means not to include 1 column
+kmeansoutput1
+View(as.data.frame(kmeansoutput1$cluster))
+
+
+
+# Rsquare is 63%
+kmeansoutput2 = kmeans(Cust_Segment2[,-1],centers = 4)
+kmeansoutput2
+
+# Rsquare is 66%
+kmeansoutput3 = kmeans(Cust_Segment2[,-1],centers = 5)
+kmeansoutput3
+
+# Rsquare is 72%
+kmeansoutput4 = kmeans(Cust_Segment2[,-1],centers = 6)
+kmeansoutput4
+
+# plots
+library(animation) # please install it first
+kmeansoutputanimated = kmeans.ani(Cust_Segment2[1:500,-1],centers = 3)
+
+
+
+            ###Hiererchichal clusters
+# step 1 : prepare data
+Cust_Segment2 = na.omit(Cust_Segment)
+View(Cust_Segment2)
+
+# Step 2: Find distances of each obs from another 
+distmatrix = dist(Cust_Segment2[1:20,c(2,4)],method="euclidean")
+distmatrix
+
+?dist
+
+# Step 3: Run Hiererchichal cluster
+Hierarchy_output = hclust(distmatrix,method="complete")
+plot(Hierarchy_output)
+rect.hclust(Hierarchy_output,k=5)
+
+# step 4: 
+Final_Clust = cutree(Hierarchy_output,3)
+Final_Clust
+
+
+
+            ## Fuzzy clusters
+library(e1071) # please install package first.
+FuzzyClust = cmeans(Cust_Segment2[,-1],6)
+FuzzyClust$cluster
+View(as.data.frame(FuzzyClust$cluster))
+
+
+Cust_Segment_Final_with_Clust_Number = cbind(Cust_Segment2,FuzzyClust$cluster)
+View(Cust_Segment_Final_with_Clust_Number)
+
+write.csv(Cust_Segment_Final_with_Clust_Number,"Temp.csv")
+
